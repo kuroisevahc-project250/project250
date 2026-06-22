@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+USER_NAME="${SUDO_USER:-$USER}"
+HOME_DIR="/home/$USER_NAME"
+PROJECT_DIR="/opt/project250"
+
 echo "=== PROJECT250 AUDIT ==="
 echo
 
 echo "[1] Sistema"
 echo "User: $USER"
+echo "Home: $HOME"
 echo "Host: $(hostname)"
 echo "Kernel: $(uname -r)"
 echo
@@ -55,7 +60,7 @@ ls -l /etc/udev/rules.d/*esp* /etc/udev/rules.d/*cp210* 2>/dev/null || true
 echo
 
 echo "[10] Telinha"
-ls -l /home/Abraao/telinha.py 2>/dev/null || echo "telinha.py não encontrado"
+ls -l "$PROJECT_DIR/telinha.py" 2>/dev/null || echo "telinha.py não encontrado em $PROJECT_DIR"
 systemctl status telinha.service --no-pager -n 5 2>/dev/null || true
 echo
 
@@ -66,14 +71,14 @@ sensors 2>/dev/null | head -80 || true
 echo
 
 echo "[12] Skillfish"
-ls -ld /home/Abraao/skillfish-tuner-2.0 2>/dev/null || true
-ls -l /home/Abraao/Desktop/*Skill* 2>/dev/null || true
+ls -ld "$PROJECT_DIR/skillfish-tuner-2.0" 2>/dev/null || true
+ls -l "$HOME_DIR/Desktop/"*Skill* 2>/dev/null || true
 echo
 
 echo "[13] EmuDeck / Emulation"
-ls -ld /home/Abraao/Emulation 2>/dev/null || true
-ls -ld /home/Abraao/Applications 2>/dev/null || true
-ls -l /home/Abraao/Desktop/*Emu* 2>/dev/null || true
+ls -ld "$HOME_DIR/Emulation" 2>/dev/null || true
+ls -ld "$HOME_DIR/Applications" 2>/dev/null || true
+ls -l "$HOME_DIR/Desktop/"*Emu* 2>/dev/null || true
 echo
 
 echo "=== FIM DA AUDITORIA ==="
