@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import os,socket,sys
+sock=os.environ.get("CYAN_SOCKET","/tmp/bagz-blue-gpu-zen-v7-current-card-appfix.sock")
+if len(sys.argv)<2: print("usage: ./cyan-skillfish-ctl status"); sys.exit(1)
+s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.connect(sock); s.sendall(" ".join(sys.argv[1:]).encode()); print(s.recv(262144).decode().strip())

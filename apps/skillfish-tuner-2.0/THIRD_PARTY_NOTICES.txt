@@ -1,0 +1,13 @@
+Skillfish Tuner - Third Party Notices
+
+
+Referenced / integrated projects:
+- Cyan Skillfish Governor: https://github.com/filippor/cyan-skillfish-governor
+- BC250 40CU unlock research: https://github.com/duggasco/bc250-40cu-unlock
+- BC250 CU Live Manager: https://github.com/WinnieLV/bc250-cu-live-manager
+- UMR: https://gitlab.freedesktop.org/tomstdenis/umr
+
+Third-party projects remain the property of their respective authors and are referenced under their original licenses.
+
+Safety note:
+CU unlocking, overclocking, voltage changes, and fan tuning may cause instability, driver resets, or hardware stress.

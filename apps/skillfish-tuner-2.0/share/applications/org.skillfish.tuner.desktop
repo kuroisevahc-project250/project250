@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Skillfish Tuner
+Comment=BC-250 GPU / CU / Governor Tuner
+Exec=Skillfish-Tuner
+Icon=org.skillfish.tuner
+Terminal=false
+Categories=System;Settings;Utility;
+StartupNotify=true

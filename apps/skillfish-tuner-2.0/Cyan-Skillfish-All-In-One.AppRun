@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -u
+APPDIR="$(cd "$(dirname "$0")" && pwd)"
+export APPDIR
+
+ARCH="$(uname -m 2>/dev/null || echo unknown)"
+if [ "$ARCH" != "x86_64" ]; then
+  MSG="Skillfish Tuner is built for x86_64 / 64-bit Bazzite only.\nDetected architecture: $ARCH"
+  if command -v zenity >/dev/null 2>&1; then
+    zenity --error --title="Unsupported architecture" --text="$MSG" 2>/dev/null || true
+  elif command -v kdialog >/dev/null 2>&1; then
+    kdialog --error "$MSG" 2>/dev/null || true
+  else
+    printf '%b\n' "$MSG" >&2
+  fi
+  exit 64
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  MSG="Python 3 is required to run Skillfish Tuner."
+  if command -v zenity >/dev/null 2>&1; then
+    zenity --error --title="Missing dependency" --text="$MSG" 2>/dev/null || true
+  else
+    echo "$MSG" >&2
+  fi
+  exit 127
+fi
+
+export PYTHONPATH="$APPDIR/src"
+export CYAN_SOCKET="/tmp/bagz-blue-gpu-zen-v7-current-card-appfix.sock"
+mkdir -p "$HOME/.config/skillfish-tuner/logs" /tmp
+export BAGZ_LOG="$HOME/.config/skillfish-tuner/logs/latest.log"
+exec python3 "$APPDIR/gui/sudo_launcher.py"
