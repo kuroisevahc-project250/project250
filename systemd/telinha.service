@@ -4,9 +4,9 @@ After=multi-user.target
 
 [Service]
 Type=simple
-User=Abraao
-WorkingDirectory=/home/Abraao
-ExecStart=/usr/bin/python3 /home/Abraao/telinha.py
+User=project250
+WorkingDirectory=/opt/project250
+ExecStart=/usr/bin/python3 /opt/project250/telinha.py
 Restart=always
 RestartSec=3
 
