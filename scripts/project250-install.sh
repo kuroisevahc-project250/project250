@@ -1,4 +1,3 @@
-cat > scripts/project250-install.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -133,4 +132,3 @@ echo
 echo "=== Project250 install finalizado ==="
 echo "Reinicie com:"
 echo "systemctl reboot"
-EOF
