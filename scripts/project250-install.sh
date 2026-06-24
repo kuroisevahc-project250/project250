@@ -9,6 +9,8 @@ PROJECT_DIR="/opt/project250"
 KERNEL_DIR="$REPO_DIR/kernel-rpms"
 TELINHA_SRC="$REPO_DIR/opt/project250/telinha.py"
 TELINHA="$PROJECT_DIR/telinha.py"
+CU_MAP_SRC="$REPO_DIR/opt/project250/cu_map.sh"
+CU_MAP="$PROJECT_DIR/cu_map.sh"
 SKILLFISH_SRC="$REPO_DIR/apps/skillfish-tuner-2.0"
 SKILLFISH_DIR="$PROJECT_DIR/skillfish-tuner-2.0"
 
@@ -56,6 +58,12 @@ if [[ -f "$TELINHA_SRC" ]]; then
   install -m 0755 "$TELINHA_SRC" "$TELINHA"
 else
   echo "ERRO: telinha.py não encontrado em $TELINHA_SRC"
+fi
+
+if [[ -f "$CU_MAP_SRC" ]]; then
+  install -m 0755 "$CU_MAP_SRC" "$CU_MAP"
+else
+  echo "AVISO: cu_map.sh não encontrado em $CU_MAP_SRC"
 fi
 
 if [[ -d "$SKILLFISH_SRC" ]]; then
@@ -125,6 +133,7 @@ echo "=== Validação rápida ==="
 echo "Kernel: $(uname -r)"
 rpm-ostree kargs | grep -o "amdgpu.bc250_cc_write_mode=3" || true
 ls -l /dev/ttyUSB* 2>/dev/null || true
+ls -l "$CU_MAP" 2>/dev/null || true
 systemctl is-enabled telinha.service 2>/dev/null || true
 systemctl is-enabled cyan-skillfish-governor-smu.service 2>/dev/null || true
 
