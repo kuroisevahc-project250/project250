@@ -1,0 +1,122 @@
+1) First: make rollback easy
+Run this before touching anything:
+
+rpm-ostree status
+sudo ostree admin pin 0
+
+Bazzite supports rollback from the GRUB menu or with rpm-ostree rollback, and pinning keeps your current deployment as a safe fallback
+
+2) Disable governor (depending what governor you use):
+
+a) 
+sudo systemctl disable cyan-skillfish-governor-smu.service
+
+or
+
+sudo systemctl disable oberon-governor.service
+
+b)
+
+sudo systemctl stop cyan-skillfish-governor-smu
+
+or
+
+sudo systemctl stop oberon-governor
+
+3) To check your CU harvest map:
+
+a) Save cu_map.sh in folder
+
+b) Open console in folder containing file
+
+c) give permissions to file:
+
+chmod +x cu_map.sh
+
+d) read the harvest map:
+
+./cu_map.sh
+
+You will see something like this:
+
+BC-250 CU Map
+SE0 SH0: ■■■■■■□□□□
+SE0 SH1: ■■■■■■□□□□
+SE1 SH0: ■■■■■■□□□□
+SE1 SH1: ■■■■■■□□□□
+24/40 CUs active, 16 harvested
+
+(lucky you)
+
+or
+
+BC-250 CU Map
+SE0 SH0: ■■■■■■□□□□
+SE0 SH1: ■■□□■■□□■■
+SE1 SH0: ■■■■■■□□□□
+SE1 SH1: ■■■■■■□□□□
+24/40 CUs active, 16 harvested
+
+If you have situation like above you will need to consult https://github.com/duggasco/bc250-40cu-unlock
+as it is more complex and Selective CU Masking required which I'm not yet ready to explain
+
+You can still give it a try, by below instructions, but chances of system crash are higher.
+
+4) Updating Bazzite kernel:
+
+a) Extract bazzite-bc250cu-rpms-ba29.7z
+
+b) Open console in folder with extracted files
+
+c) To activate harvested compute units:
+
+sudo rpm-ostree override replace ./*.rpm
+sudo rpm-ostree kargs --append=amdgpu.bc250_cc_write_mode=3
+sudo systemctl reboot
+
+d) after reboot again do step 1) c)d)
+
+You will see something like that:
+
+BC-250 CU Map
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+40/40 CUs active, 0 harvested
+
+e) To restore default:
+
+sudo rpm-ostree kargs --delete=amdgpu.bc250_cc_write_mode=3
+sudo systemctl reboot
+
+5) test in games, furmark, occt etc
+
+6) When all works fine you can edit governor OC settings (frequencies and voltages) 
+and by slowly rising settings find your sweet spot for freq/voltage 
+
+to start governor for test:
+
+sudo systemctl start cyan-skillfish-governor-smu
+
+or
+
+sudo systemctl start oberon-governor
+
+to apply new settings after config change:
+
+sudo systemctl restart cyan-skillfish-governor-smu
+
+or
+
+sudo systemctl restart oberon-governor
+
+7) When you found your sweet settings enable governor service to keep OC after reboot:
+
+sudo systemctl enable cyan-skillfish-governor-smu.service
+
+or
+
+sudo systemctl enable oberon-governor.service
+
+Until service is enabled any system crash will allow Bazzite to boot to default GPU clocks

@@ -1,0 +1,2379 @@
+If enabling all 40 CU crashes your system, you need to boot to pinned deployment that you had to do prior experimenting with 40 CU mod:
+
+on boot you press ESC key several times, than enter command NORMAL, and pick your pinned deployment that would bring you to working system back. 
+
+Then repeat kernel patching (refer to 40CU Bazzite 6.17.7 ba29 guide.txt) but only override kernels:
+
+sudo rpm-ostree override replace ./*.rpm
+
+After that you need command "sudo rpm-ostree kargs --append=amdgpu.bc250_cc_write_mode=3" to include identification of CUs to be disabled. 
+
+HOW TO FIND OUT:
+
+EXAMPLE:
+
+Your initial map:
+
+BC-250 CU Map
+SE0 SH0: ■■■■■■□□□□
+SE0 SH1: ■■□□■■□□■■
+SE1 SH0: ■■■■■■□□□□
+SE1 SH1: ■■■■■■□□□□
+24/40 CUs active, 16 harvested
+
+I would first try keeping SE0 SH1 CU 1 and CU 3 off (0.1.1,0.1.3) like that:
+
+BC-250 CU Map
+         0  1  2  3  4
+SE0 SH0: ■■ ■■ ■■ □□ □□
+SE0 SH1: ■■ XX ■■ XX ■■
+SE1 SH0: ■■ ■■ ■■ □□ □□
+SE1 SH1: ■■ ■■ ■■ □□ □□
+
+24/40 CUs active, 16 harvested
+
+This corresponds to VARIANT 101:
+
+Command: 
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,0.1.3'
+sudo systemctl reboot
+
+RESULT:
+
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+After test, if all ok, you can pin your deployment
+
+rpm-ostree status
+sudo ostree admin pin 0
+
+and try enabling one by one 0.1.1 or 0.1.3, to see if you can have 38CU working.
+
+Apply VARIANT 07, or 10, to find out if you can have 38 CU instead of 36...
+
+
+================================================
+SECTION 1: SINGLE WGP / 2 CU DISABLE VARIANTS
+20 variants total. Each gives 38/40 active CUs.
+================================================
+
+Single Variant 01: Disable SE0 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0'
+sudo systemctl reboot
+
+Single Variant 02: Disable SE0 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1'
+sudo systemctl reboot
+
+Single Variant 03: Disable SE0 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2'
+sudo systemctl reboot
+
+Single Variant 04: Disable SE0 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3'
+sudo systemctl reboot
+
+Single Variant 05: Disable SE0 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4'
+sudo systemctl reboot
+
+Single Variant 06: Disable SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0'
+sudo systemctl reboot
+
+Single Variant 07: Disable SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1'
+sudo systemctl reboot
+
+Single Variant 08: Disable SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2'
+sudo systemctl reboot
+
+Single Variant 09: Disable SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3'
+sudo systemctl reboot
+
+Single Variant 10: Disable SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4'
+sudo systemctl reboot
+
+Single Variant 11: Disable SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0'
+sudo systemctl reboot
+
+Single Variant 12: Disable SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1'
+sudo systemctl reboot
+
+Single Variant 13: Disable SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2'
+sudo systemctl reboot
+
+Single Variant 14: Disable SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3'
+sudo systemctl reboot
+
+Single Variant 15: Disable SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4'
+sudo systemctl reboot
+
+Single Variant 16: Disable SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.0'
+sudo systemctl reboot
+
+Single Variant 17: Disable SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.1'
+sudo systemctl reboot
+
+Single Variant 18: Disable SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.2'
+sudo systemctl reboot
+
+Single Variant 19: Disable SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.3'
+sudo systemctl reboot
+
+Single Variant 20: Disable SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+38/40 CUs active, 2 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.4'
+sudo systemctl reboot
+
+================================================
+SECTION 2: TWO WGP / 4 CU DISABLE VARIANTS
+190 variants total. Each gives 36/40 active CUs.
+================================================
+
+Double Variant 001: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: □□□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.0.1'
+sudo systemctl reboot
+
+Double Variant 002: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: □□■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.0.2'
+sudo systemctl reboot
+
+Double Variant 003: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: □□■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.0.3'
+sudo systemctl reboot
+
+Double Variant 004: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: □□■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.0.4'
+sudo systemctl reboot
+
+Double Variant 005: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.1.0'
+sudo systemctl reboot
+
+Double Variant 006: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.1.1'
+sudo systemctl reboot
+
+Double Variant 007: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.1.2'
+sudo systemctl reboot
+
+Double Variant 008: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.1.3'
+sudo systemctl reboot
+
+Double Variant 009: Disable SE0 SH0 WGP0 / CU0-1 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,0.1.4'
+sudo systemctl reboot
+
+Double Variant 010: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.0.0'
+sudo systemctl reboot
+
+Double Variant 011: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.0.1'
+sudo systemctl reboot
+
+Double Variant 012: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.0.2'
+sudo systemctl reboot
+
+Double Variant 013: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.0.3'
+sudo systemctl reboot
+
+Double Variant 014: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.0.4'
+sudo systemctl reboot
+
+Double Variant 015: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.1.0'
+sudo systemctl reboot
+
+Double Variant 016: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.1.1'
+sudo systemctl reboot
+
+Double Variant 017: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.1.2'
+sudo systemctl reboot
+
+Double Variant 018: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.1.3'
+sudo systemctl reboot
+
+Double Variant 019: Disable SE0 SH0 WGP0 / CU0-1 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: □□■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.0,1.1.4'
+sudo systemctl reboot
+
+Double Variant 020: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■□□□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.0.2'
+sudo systemctl reboot
+
+Double Variant 021: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■□□■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.0.3'
+sudo systemctl reboot
+
+Double Variant 022: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■□□■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.0.4'
+sudo systemctl reboot
+
+Double Variant 023: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.1.0'
+sudo systemctl reboot
+
+Double Variant 024: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.1.1'
+sudo systemctl reboot
+
+Double Variant 025: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.1.2'
+sudo systemctl reboot
+
+Double Variant 026: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.1.3'
+sudo systemctl reboot
+
+Double Variant 027: Disable SE0 SH0 WGP1 / CU2-3 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,0.1.4'
+sudo systemctl reboot
+
+Double Variant 028: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.0.0'
+sudo systemctl reboot
+
+Double Variant 029: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.0.1'
+sudo systemctl reboot
+
+Double Variant 030: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.0.2'
+sudo systemctl reboot
+
+Double Variant 031: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.0.3'
+sudo systemctl reboot
+
+Double Variant 032: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.0.4'
+sudo systemctl reboot
+
+Double Variant 033: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.1.0'
+sudo systemctl reboot
+
+Double Variant 034: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.1.1'
+sudo systemctl reboot
+
+Double Variant 035: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.1.2'
+sudo systemctl reboot
+
+Double Variant 036: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.1.3'
+sudo systemctl reboot
+
+Double Variant 037: Disable SE0 SH0 WGP1 / CU2-3 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■□□■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.1,1.1.4'
+sudo systemctl reboot
+
+Double Variant 038: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■□□□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.0.3'
+sudo systemctl reboot
+
+Double Variant 039: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■□□■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.0.4'
+sudo systemctl reboot
+
+Double Variant 040: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.1.0'
+sudo systemctl reboot
+
+Double Variant 041: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.1.1'
+sudo systemctl reboot
+
+Double Variant 042: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.1.2'
+sudo systemctl reboot
+
+Double Variant 043: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.1.3'
+sudo systemctl reboot
+
+Double Variant 044: Disable SE0 SH0 WGP2 / CU4-5 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,0.1.4'
+sudo systemctl reboot
+
+Double Variant 045: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.0.0'
+sudo systemctl reboot
+
+Double Variant 046: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.0.1'
+sudo systemctl reboot
+
+Double Variant 047: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.0.2'
+sudo systemctl reboot
+
+Double Variant 048: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.0.3'
+sudo systemctl reboot
+
+Double Variant 049: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.0.4'
+sudo systemctl reboot
+
+Double Variant 050: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.1.0'
+sudo systemctl reboot
+
+Double Variant 051: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.1.1'
+sudo systemctl reboot
+
+Double Variant 052: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.1.2'
+sudo systemctl reboot
+
+Double Variant 053: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.1.3'
+sudo systemctl reboot
+
+Double Variant 054: Disable SE0 SH0 WGP2 / CU4-5 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■□□■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.2,1.1.4'
+sudo systemctl reboot
+
+Double Variant 055: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■□□□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.0.4'
+sudo systemctl reboot
+
+Double Variant 056: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.1.0'
+sudo systemctl reboot
+
+Double Variant 057: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.1.1'
+sudo systemctl reboot
+
+Double Variant 058: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.1.2'
+sudo systemctl reboot
+
+Double Variant 059: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.1.3'
+sudo systemctl reboot
+
+Double Variant 060: Disable SE0 SH0 WGP3 / CU6-7 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,0.1.4'
+sudo systemctl reboot
+
+Double Variant 061: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.0.0'
+sudo systemctl reboot
+
+Double Variant 062: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.0.1'
+sudo systemctl reboot
+
+Double Variant 063: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.0.2'
+sudo systemctl reboot
+
+Double Variant 064: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.0.3'
+sudo systemctl reboot
+
+Double Variant 065: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.0.4'
+sudo systemctl reboot
+
+Double Variant 066: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.1.0'
+sudo systemctl reboot
+
+Double Variant 067: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.1.1'
+sudo systemctl reboot
+
+Double Variant 068: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.1.2'
+sudo systemctl reboot
+
+Double Variant 069: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.1.3'
+sudo systemctl reboot
+
+Double Variant 070: Disable SE0 SH0 WGP3 / CU6-7 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■□□■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.3,1.1.4'
+sudo systemctl reboot
+
+Double Variant 071: Disable SE0 SH0 WGP4 / CU8-9 + SE0 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,0.1.0'
+sudo systemctl reboot
+
+Double Variant 072: Disable SE0 SH0 WGP4 / CU8-9 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,0.1.1'
+sudo systemctl reboot
+
+Double Variant 073: Disable SE0 SH0 WGP4 / CU8-9 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,0.1.2'
+sudo systemctl reboot
+
+Double Variant 074: Disable SE0 SH0 WGP4 / CU8-9 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,0.1.3'
+sudo systemctl reboot
+
+Double Variant 075: Disable SE0 SH0 WGP4 / CU8-9 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,0.1.4'
+sudo systemctl reboot
+
+Double Variant 076: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.0.0'
+sudo systemctl reboot
+
+Double Variant 077: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.0.1'
+sudo systemctl reboot
+
+Double Variant 078: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.0.2'
+sudo systemctl reboot
+
+Double Variant 079: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.0.3'
+sudo systemctl reboot
+
+Double Variant 080: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.0.4'
+sudo systemctl reboot
+
+Double Variant 081: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.1.0'
+sudo systemctl reboot
+
+Double Variant 082: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.1.1'
+sudo systemctl reboot
+
+Double Variant 083: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.1.2'
+sudo systemctl reboot
+
+Double Variant 084: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.1.3'
+sudo systemctl reboot
+
+Double Variant 085: Disable SE0 SH0 WGP4 / CU8-9 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■□□
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.0.4,1.1.4'
+sudo systemctl reboot
+
+Double Variant 086: Disable SE0 SH1 WGP0 / CU0-1 + SE0 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,0.1.1'
+sudo systemctl reboot
+
+Double Variant 087: Disable SE0 SH1 WGP0 / CU0-1 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,0.1.2'
+sudo systemctl reboot
+
+Double Variant 088: Disable SE0 SH1 WGP0 / CU0-1 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,0.1.3'
+sudo systemctl reboot
+
+Double Variant 089: Disable SE0 SH1 WGP0 / CU0-1 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,0.1.4'
+sudo systemctl reboot
+
+Double Variant 090: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.0.0'
+sudo systemctl reboot
+
+Double Variant 091: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.0.1'
+sudo systemctl reboot
+
+Double Variant 092: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.0.2'
+sudo systemctl reboot
+
+Double Variant 093: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.0.3'
+sudo systemctl reboot
+
+Double Variant 094: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.0.4'
+sudo systemctl reboot
+
+Double Variant 095: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.1.0'
+sudo systemctl reboot
+
+Double Variant 096: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.1.1'
+sudo systemctl reboot
+
+Double Variant 097: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.1.2'
+sudo systemctl reboot
+
+Double Variant 098: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.1.3'
+sudo systemctl reboot
+
+Double Variant 099: Disable SE0 SH1 WGP0 / CU0-1 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: □□■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.0,1.1.4'
+sudo systemctl reboot
+
+Double Variant 100: Disable SE0 SH1 WGP1 / CU2-3 + SE0 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,0.1.2'
+sudo systemctl reboot
+
+Double Variant 101: Disable SE0 SH1 WGP1 / CU2-3 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,0.1.3'
+sudo systemctl reboot
+
+Double Variant 102: Disable SE0 SH1 WGP1 / CU2-3 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,0.1.4'
+sudo systemctl reboot
+
+Double Variant 103: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.0.0'
+sudo systemctl reboot
+
+Double Variant 104: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.0.1'
+sudo systemctl reboot
+
+Double Variant 105: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.0.2'
+sudo systemctl reboot
+
+Double Variant 106: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.0.3'
+sudo systemctl reboot
+
+Double Variant 107: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.0.4'
+sudo systemctl reboot
+
+Double Variant 108: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.1.0'
+sudo systemctl reboot
+
+Double Variant 109: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.1.1'
+sudo systemctl reboot
+
+Double Variant 110: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.1.2'
+sudo systemctl reboot
+
+Double Variant 111: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.1.3'
+sudo systemctl reboot
+
+Double Variant 112: Disable SE0 SH1 WGP1 / CU2-3 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■□□■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.1,1.1.4'
+sudo systemctl reboot
+
+Double Variant 113: Disable SE0 SH1 WGP2 / CU4-5 + SE0 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,0.1.3'
+sudo systemctl reboot
+
+Double Variant 114: Disable SE0 SH1 WGP2 / CU4-5 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,0.1.4'
+sudo systemctl reboot
+
+Double Variant 115: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.0.0'
+sudo systemctl reboot
+
+Double Variant 116: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.0.1'
+sudo systemctl reboot
+
+Double Variant 117: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.0.2'
+sudo systemctl reboot
+
+Double Variant 118: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.0.3'
+sudo systemctl reboot
+
+Double Variant 119: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.0.4'
+sudo systemctl reboot
+
+Double Variant 120: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.1.0'
+sudo systemctl reboot
+
+Double Variant 121: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.1.1'
+sudo systemctl reboot
+
+Double Variant 122: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.1.2'
+sudo systemctl reboot
+
+Double Variant 123: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.1.3'
+sudo systemctl reboot
+
+Double Variant 124: Disable SE0 SH1 WGP2 / CU4-5 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■□□■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.2,1.1.4'
+sudo systemctl reboot
+
+Double Variant 125: Disable SE0 SH1 WGP3 / CU6-7 + SE0 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,0.1.4'
+sudo systemctl reboot
+
+Double Variant 126: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.0.0'
+sudo systemctl reboot
+
+Double Variant 127: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.0.1'
+sudo systemctl reboot
+
+Double Variant 128: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.0.2'
+sudo systemctl reboot
+
+Double Variant 129: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.0.3'
+sudo systemctl reboot
+
+Double Variant 130: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.0.4'
+sudo systemctl reboot
+
+Double Variant 131: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.1.0'
+sudo systemctl reboot
+
+Double Variant 132: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.1.1'
+sudo systemctl reboot
+
+Double Variant 133: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.1.2'
+sudo systemctl reboot
+
+Double Variant 134: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.1.3'
+sudo systemctl reboot
+
+Double Variant 135: Disable SE0 SH1 WGP3 / CU6-7 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■□□■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.3,1.1.4'
+sudo systemctl reboot
+
+Double Variant 136: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH0 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.0.0'
+sudo systemctl reboot
+
+Double Variant 137: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.0.1'
+sudo systemctl reboot
+
+Double Variant 138: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.0.2'
+sudo systemctl reboot
+
+Double Variant 139: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.0.3'
+sudo systemctl reboot
+
+Double Variant 140: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.0.4'
+sudo systemctl reboot
+
+Double Variant 141: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.1.0'
+sudo systemctl reboot
+
+Double Variant 142: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.1.1'
+sudo systemctl reboot
+
+Double Variant 143: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.1.2'
+sudo systemctl reboot
+
+Double Variant 144: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.1.3'
+sudo systemctl reboot
+
+Double Variant 145: Disable SE0 SH1 WGP4 / CU8-9 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■□□
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=0.1.4,1.1.4'
+sudo systemctl reboot
+
+Double Variant 146: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH0 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□□□■■■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.0.1'
+sudo systemctl reboot
+
+Double Variant 147: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.0.2'
+sudo systemctl reboot
+
+Double Variant 148: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.0.3'
+sudo systemctl reboot
+
+Double Variant 149: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.0.4'
+sudo systemctl reboot
+
+Double Variant 150: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.1.0'
+sudo systemctl reboot
+
+Double Variant 151: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.1.1'
+sudo systemctl reboot
+
+Double Variant 152: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.1.2'
+sudo systemctl reboot
+
+Double Variant 153: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.1.3'
+sudo systemctl reboot
+
+Double Variant 154: Disable SE1 SH0 WGP0 / CU0-1 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: □□■■■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.0,1.1.4'
+sudo systemctl reboot
+
+Double Variant 155: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH0 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□□□■■■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.0.2'
+sudo systemctl reboot
+
+Double Variant 156: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.0.3'
+sudo systemctl reboot
+
+Double Variant 157: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.0.4'
+sudo systemctl reboot
+
+Double Variant 158: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.1.0'
+sudo systemctl reboot
+
+Double Variant 159: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.1.1'
+sudo systemctl reboot
+
+Double Variant 160: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.1.2'
+sudo systemctl reboot
+
+Double Variant 161: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.1.3'
+sudo systemctl reboot
+
+Double Variant 162: Disable SE1 SH0 WGP1 / CU2-3 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■□□■■■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.1,1.1.4'
+sudo systemctl reboot
+
+Double Variant 163: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH0 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□□□■■
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.0.3'
+sudo systemctl reboot
+
+Double Variant 164: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.0.4'
+sudo systemctl reboot
+
+Double Variant 165: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.1.0'
+sudo systemctl reboot
+
+Double Variant 166: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.1.1'
+sudo systemctl reboot
+
+Double Variant 167: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.1.2'
+sudo systemctl reboot
+
+Double Variant 168: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.1.3'
+sudo systemctl reboot
+
+Double Variant 169: Disable SE1 SH0 WGP2 / CU4-5 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■□□■■■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.2,1.1.4'
+sudo systemctl reboot
+
+Double Variant 170: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH0 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□□□
+SE1 SH1: ■■■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.0.4'
+sudo systemctl reboot
+
+Double Variant 171: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.1.0'
+sudo systemctl reboot
+
+Double Variant 172: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.1.1'
+sudo systemctl reboot
+
+Double Variant 173: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.1.2'
+sudo systemctl reboot
+
+Double Variant 174: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.1.3'
+sudo systemctl reboot
+
+Double Variant 175: Disable SE1 SH0 WGP3 / CU6-7 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■□□■■
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.3,1.1.4'
+sudo systemctl reboot
+
+Double Variant 176: Disable SE1 SH0 WGP4 / CU8-9 + SE1 SH1 WGP0 / CU0-1
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: □□■■■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4,1.1.0'
+sudo systemctl reboot
+
+Double Variant 177: Disable SE1 SH0 WGP4 / CU8-9 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4,1.1.1'
+sudo systemctl reboot
+
+Double Variant 178: Disable SE1 SH0 WGP4 / CU8-9 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4,1.1.2'
+sudo systemctl reboot
+
+Double Variant 179: Disable SE1 SH0 WGP4 / CU8-9 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4,1.1.3'
+sudo systemctl reboot
+
+Double Variant 180: Disable SE1 SH0 WGP4 / CU8-9 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■□□
+SE1 SH1: ■■■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.0.4,1.1.4'
+sudo systemctl reboot
+
+Double Variant 181: Disable SE1 SH1 WGP0 / CU0-1 + SE1 SH1 WGP1 / CU2-3
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□□□■■■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.0,1.1.1'
+sudo systemctl reboot
+
+Double Variant 182: Disable SE1 SH1 WGP0 / CU0-1 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.0,1.1.2'
+sudo systemctl reboot
+
+Double Variant 183: Disable SE1 SH1 WGP0 / CU0-1 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.0,1.1.3'
+sudo systemctl reboot
+
+Double Variant 184: Disable SE1 SH1 WGP0 / CU0-1 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: □□■■■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.0,1.1.4'
+sudo systemctl reboot
+
+Double Variant 185: Disable SE1 SH1 WGP1 / CU2-3 + SE1 SH1 WGP2 / CU4-5
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□□□■■■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.1,1.1.2'
+sudo systemctl reboot
+
+Double Variant 186: Disable SE1 SH1 WGP1 / CU2-3 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.1,1.1.3'
+sudo systemctl reboot
+
+Double Variant 187: Disable SE1 SH1 WGP1 / CU2-3 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■□□■■■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.1,1.1.4'
+sudo systemctl reboot
+
+Double Variant 188: Disable SE1 SH1 WGP2 / CU4-5 + SE1 SH1 WGP3 / CU6-7
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□□□■■
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.2,1.1.3'
+sudo systemctl reboot
+
+Double Variant 189: Disable SE1 SH1 WGP2 / CU4-5 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■□□■■□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.2,1.1.4'
+sudo systemctl reboot
+
+Double Variant 190: Disable SE1 SH1 WGP3 / CU6-7 + SE1 SH1 WGP4 / CU8-9
+----------------------------------------
+SE0 SH0: ■■■■■■■■■■
+SE0 SH1: ■■■■■■■■■■
+SE1 SH0: ■■■■■■■■■■
+SE1 SH1: ■■■■■■□□□□
+36/40 CUs active, 4 CUs disabled
+
+sudo rpm-ostree kargs --append='amdgpu.bc250_cc_write_mode=3 amdgpu.disable_cu=1.1.3,1.1.4'
+sudo systemctl reboot
+
